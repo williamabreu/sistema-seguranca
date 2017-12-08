@@ -6,9 +6,13 @@
 #define RST_PIN    9
 #define SS_PIN    10
 
+
 bool buscaCartao(String uid);
+void acaoDetectaMovimento();
+
 
 MFRC522 mfrc522(SS_PIN, RST_PIN); // Create MFRC522 instance.
+
 
 #define QUANTIDADE 2
 
@@ -18,23 +22,22 @@ String cartoesCadastrados[QUANTIDADE] = {
 };
 
 
+
 void setup() {
     Serial.begin(9600);         // Inicia a serial
     SPI.begin();                // Inicia  SPI bus
+    
     mfrc522.PCD_Init();         // Inicia MFRC522
+    
     pinMode(RELAY_PIN, OUTPUT); // Pino do relé como saída
     pinMode(PIR_PIN, INPUT);    // Pino do sensor de movimento
+
+    attachInterrupt(digitalPinToInterrupt(PIR_PIN), acaoDetectaMovimento, RISING);
 }
 
 
 void loop() { 
 	Serial.write(0);
-	
-    // Sensor de movimento
-    if (digitalRead(PIR_PIN) == HIGH) {
-        Serial.write(1); // manda sinal para ligar câmera
-        return;
-    }
     
     // Procura por cartao RFID
     if ( not mfrc522.PICC_IsNewCardPresent() ) {
@@ -77,6 +80,10 @@ bool buscaCartao(String uid) {
     }
     
     return false;
+}
+
+void acaoDetectaMovimento() {
+    Serial.write(1);
 }
 
 
