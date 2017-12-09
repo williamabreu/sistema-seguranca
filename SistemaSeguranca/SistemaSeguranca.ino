@@ -14,11 +14,11 @@ void acaoDetectaMovimento();
 MFRC522 mfrc522(SS_PIN, RST_PIN); // Create MFRC522 instance.
 
 
-#define QUANTIDADE 2
-
-String cartoesCadastrados[QUANTIDADE] = {
-    "B0 A2 A9 89",
-    "AA 23 92 3E"
+String cartoesCadastrados[] = {
+    "B0 A2 A9 89", // Visitante (cartão branco)
+    "AA 23 92 3E", // Carla
+    "67 D5 02 6C", // Isadora
+    "97 23 02 6C"  // Leticia
 };
 
 
@@ -36,9 +36,7 @@ void setup() {
 }
 
 
-void loop() { 
-	Serial.write(0);
-    
+void loop() {     
     // Procura por cartao RFID
     if ( not mfrc522.PICC_IsNewCardPresent() ) {
         return;
@@ -67,14 +65,16 @@ void loop() {
         digitalWrite(RELAY_PIN, HIGH); // ativa rele, abre a trava solenoide
         delay(3000);                   // espera 3 segundos
         digitalWrite(RELAY_PIN, LOW);  // desativa rele, fecha a trava solenoide
+        Serial.write(2);               // manda sinal para salvar log
+        Serial.print(uid);
     }  
 }
 
 
 
 bool buscaCartao(String uid) {
-    for (int i = 0; i < QUANTIDADE; i++) {
-        if (cartoesCadastrados[i] == uid) {
+    for (String cartao : cartoesCadastrados) {
+        if (cartao == uid) {
             return true;
         }
     }
@@ -83,7 +83,7 @@ bool buscaCartao(String uid) {
 }
 
 void acaoDetectaMovimento() {
-    Serial.write(1);
+    Serial.write(1);  // envia sinal para tirar foto do ambiente
 }
 
 
